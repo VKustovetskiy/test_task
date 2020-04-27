@@ -6,16 +6,26 @@ module.exports = {
     title: 'test_task',
     meta: [
       { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1, shrink-to-fit=no' },
       { hid: 'description', name: 'description', content: 'Nuxt.js project' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-      // { rel: "stylesheet", type: "text/css", href: "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css", integrity: "sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh", crossorigin: "anonymous" }
-    ],
-    // script: [
-
-    // ]
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+    ]
+  },
+  modules: ['bootstrap-vue/nuxt'],
+  // bootstrapVue: {
+  //   componentPlugins: [
+  //     'LayoutPlugin',
+  //     'ModalPlugin'
+  //   ]
+  // },
+  plugins:[
+    '~plugins/index'
+  ],
+  env: {
+    VUE_APP_DOMAIN: 'randomuser.me',
+    VUE_APP_SECURE: 'true'
   },
   /*
   ** Customize the progress bar color

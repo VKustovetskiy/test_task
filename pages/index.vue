@@ -1,36 +1,16 @@
 <template>
-  <section class="container">
-    <user-card />
-    <user-card />
-    <user-card />
-  </section>
+  <user-list />
 </template>
 
 <script>
-import UserCard from '~/components/UserCard.vue'
+import UserList from '~/components/UserList.vue'
 
 export default {
   components: {
-    UserCard
+    UserList
   }
 }
 </script>
 
-<style lang="scss">
-body {
-  /* font-family: 'UbuntuItalic', sans-serif; */
-}
-
-.container {
-  display: flex;
-  min-height: 100vh;
-  text-align: center;
-  padding: 15px;
-}
-
-::selection {
-  color: #fff;
-  background-color: #83ba43;
-}
+<style>
 </style>
-

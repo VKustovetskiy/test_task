@@ -1,66 +1,84 @@
 <template>
-  <div class="user-card">
+  <div
+    :id="`card-${cardId}`"
+    class="user-card"
+    @click.stop="$bvModal.show(`userModal${cardId}`)">
     <div class="user-details">
       <div class="user-photo">
-        <img src="https://randomuser.me/api/portraits/men/15.jpg">
+        <img :src="getUserPhotoUrl">
       </div>
 
       <p class="user-title">{{ userTitle }}</p>
 
-      <p class="title-value">{{ titleValue }}</p>
+      <p class="title-value">{{ getTitleValue(selectedInfoName) }}</p>
     </div>
 
     <ul class="user-info">
       <li
+        data-title="Hi, My name is"
         class="name active"
         @mouseover.stop="handleIconHover"></li>
       <li
+        data-title="My email address is"
         class="email"
         @mouseover.stop="handleIconHover"></li>
       <li
+        data-title="My birthday is"
         class="birthday"
         @mouseover.stop="handleIconHover"></li>
     </ul>
+
+    <div class="col-3">
+      <b-modal
+        :id="`userModal${this.cardId}`"
+        centered
+        ok-only
+        class="card-modal">
+        <p>My email is <span class="font-weight-bold text-success">{{ userData.email }}</span>.
+        Gender is <span class="font-weight-bold text-success">{{ userData.gender }}</span>.
+        Age is <span class="font-weight-bold text-success">{{ userData.dob.age }}</span></p>
+      </b-modal>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
   name: 'UserCard',
+  props: {
+    userData: {
+      type: Object,
+      default: () => ({
+        gender: "female",
+        name: {first: "John", last: "Doe"},
+        email: "john.doe@example.com",
+        dob: {date: "1956-08-15T02:12:48.206Z", age: 64},
+        picture: {large: "https://randomuser.me/api/portraits/women/93.jpg"}
+      })
+    },
+    cardId: {
+      type: Number | String ,
+      default: 1
+    }
+  },
   data: function () {
     return {
       selectedInfoName: 'name',
-      displayInfo: {
-        name: {
-          title: 'Hi, My name is',
-          value: 'Steven Stevens'
-        },
-        email: {
-          title: 'My email address is',
-          value: 'steven.stevens@example.com'
-        },
-        birthday: {
-          title: 'My birthday is',
-          value: '12/6/1981'
-        }
-      },
+      userTitle: 'Hi, My name is'
     }
   },
 
   computed: {
-    userTitle () {
-      return this.displayInfo[this.selectedInfoName].title
-    },
-
-    titleValue () {
-      return this.displayInfo[this.selectedInfoName].value
+    getUserPhotoUrl() {
+      return this.userData.picture.large
     }
   },
 
   methods: {
     handleIconHover (e) {
-      const activeIcon = document.getElementsByClassName('active')
+      const activeIcon = this.getParentCardNode(this.cardId).getElementsByClassName('active')
       const userInfoName = e.target.classList[0]
+      const userTitle = e.target.getAttribute('data-title')
 
       if (activeIcon.length) {
         this.makeIconInactive(activeIcon[0])
@@ -68,6 +86,7 @@ export default {
 
       this.makeIconActive(e.target)
       this.setInfoName(userInfoName)
+      this.setUserTitle(userTitle)
     },
 
     makeIconActive (target) {
@@ -80,6 +99,26 @@ export default {
 
     setInfoName (name) {
       this.selectedInfoName = name
+    },
+
+    setUserTitle (title) {
+      this.userTitle = title
+    },
+
+    getTitleValue (propName) {
+      switch (propName) {
+        case 'name':
+          return `${this.userData.name.first} ${this.userData.name.last}`
+        case 'email':
+          return this.userData.email
+        case 'birthday':
+          return this.$options.filters.formatDate(this.userData.dob.date)
+      }
+      return this.userData[this.selectedInfoName]
+    },
+
+    getParentCardNode (cardId) {
+      return document.getElementById(`card-${cardId}`)
     }
   }
 }
@@ -91,14 +130,13 @@ export default {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    width: 460px;
-    height: 400px;
+    min-width: 240px;
     padding: 20px 0;
-    margin: 15px;
     border-radius: 3px;
     background: #fff;
     box-shadow: 0 0 1px rgba(0,0,0,.5);
     position: relative;
+    text-align: center;
     z-index: 1;
 
     .user-details {
@@ -107,7 +145,7 @@ export default {
         display: block;
         position: absolute;
         width: 100%;
-        height: 130px;
+        min-height: 130px;
         top: 0;
         right: 0;
         background: #f9f9f9;
@@ -147,7 +185,7 @@ export default {
 
       .title-value {
         color: #2c2e31;
-        font-size: 38px;
+        font-size: 28px;
         margin: 10px;
       }
     }
@@ -196,5 +234,9 @@ export default {
         }
       }
     }
+
   }
+      .card-modal span {
+        font-weight: 600;
+      }
 </style>
