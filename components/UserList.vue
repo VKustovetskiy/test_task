@@ -189,7 +189,7 @@ export default {
     },
 
     goToPrevPage () {
-      if (this.pagination.page >= 2) {
+      if (this.pagination.page >= 2 && !this.isError) {
         this.pagination.page = this.pagination.page - 1
 
         this.getUserListWithDebounce({
@@ -202,13 +202,15 @@ export default {
     },
 
     goToNextPage () {
-      this.pagination.page++
+      if (!this.isError) {
+        this.pagination.page++
 
-      this.getUserListWithDebounce({
-        inc: 'gender,name,email,dob,picture',
-        ...this.pagination,
-        ...(this.filters.gender !== 'any' ? { ...this.filters } : {})
-      })
+        this.getUserListWithDebounce({
+          inc: 'gender,name,email,dob,picture',
+          ...this.pagination,
+          ...(this.filters.gender !== 'any' ? { ...this.filters } : {})
+        })
+      }
     },
 
     loadMore () {
@@ -224,14 +226,15 @@ export default {
       //     ...(this.filters.gender !== 'any' ? { ...this.filters } : {})
       //   })
       // }
+      if (!this.isError) {
+        this.pagination.page++
 
-      this.pagination.page++
-
-      this.loadMoreUsersWithDebounce({
-        inc: 'gender,name,email,dob,picture',
-        ...this.pagination,
-        ...(this.filters.gender !== 'any' ? { ...this.filters } : {})
-      })
+        this.loadMoreUsersWithDebounce({
+          inc: 'gender,name,email,dob,picture',
+          ...this.pagination,
+          ...(this.filters.gender !== 'any' ? { ...this.filters } : {})
+        })
+      }
     },
 
     async init() {
