@@ -9,6 +9,10 @@ const users = {
   mutations: {
     SET_USER_LIST (state, payload) {
       state.userList = payload
+    },
+
+    EXTEND_USER_LIST (state, payload) {
+      state.userList = [...state.userList, ...payload]
     }
   },
   actions: {
@@ -16,6 +20,12 @@ const users = {
       const response = await getUserList(params)
 
       commit('SET_USER_LIST', response.data.results)
+    },
+
+    async LOAD_MORE_USERS ({ commit }, params) {
+      const response = await getUserList(params)
+
+      commit('EXTEND_USER_LIST', response.data.results)
     }
   },
   getters: {

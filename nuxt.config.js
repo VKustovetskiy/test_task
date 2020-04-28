@@ -14,12 +14,6 @@ module.exports = {
     ]
   },
   modules: ['bootstrap-vue/nuxt'],
-  // bootstrapVue: {
-  //   componentPlugins: [
-  //     'LayoutPlugin',
-  //     'ModalPlugin'
-  //   ]
-  // },
   plugins:[
     '~plugins/index'
   ],
