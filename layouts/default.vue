@@ -19,7 +19,7 @@ html {
 
 body {
   min-height: 100vh;
-  min-width: 320px;
+  min-width: 450px;
 }
 
 ::selection {

@@ -338,4 +338,10 @@ export default {
     margin: 0 5px;
   }
 }
+
+@media screen  and (max-width: 540px) {
+  .pagination-btn-title {
+    display: none;
+  }
+}
 </style>
