@@ -122,7 +122,7 @@ export default {
 
     applyFilters () {
       if (!this.isError) {
-        this.getUserList()
+        this.getUserListWithDebounce()
       }
     },
 
