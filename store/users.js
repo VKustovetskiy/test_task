@@ -16,14 +16,28 @@ const users = {
     }
   },
   actions: {
-    async GET_USER_LIST ({ commit }, params) {
-      const response = await getUserList(params)
+    async getUserList ({ commit }, params) {
+      const { filters, pagination } = params
+      const payload = {
+        inc: 'gender,name,email,dob,picture',
+        ...pagination,
+        ...filters,
+        gender: filters && filters.gender !== 'any' ? filters.gender : null
+      }
+      const response = await getUserList(payload)
 
       commit('SET_USER_LIST', response.data.results)
     },
 
-    async LOAD_MORE_USERS ({ commit }, params) {
-      const response = await getUserList(params)
+    async loadMoreUsers ({ commit }, params) {
+      const { filters, pagination } = params
+      const payload = {
+        inc: 'gender,name,email,dob,picture',
+        ...pagination,
+        ...filters,
+        gender: filters && filters.gender !== 'any' ? filters.gender : null
+      }
+      const response = await getUserList(payload)
 
       commit('EXTEND_USER_LIST', response.data.results)
     }

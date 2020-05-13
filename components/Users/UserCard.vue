@@ -2,30 +2,23 @@
   <div
     :id="`card-${cardId}`"
     class="user-card"
-    @click.stop="$bvModal.show(`userModal${cardId}`)">
+    @click.stop="showModal(cardId)">
     <div class="user-details">
       <div class="user-photo">
         <img :src="getUserPhotoUrl">
       </div>
 
-      <p class="user-title">{{ userTitle }}</p>
+      <p class="user-title">{{ getUserTitle(selectedInfoName) }}</p>
 
       <p class="title-value">{{ getTitleValue(selectedInfoName) }}</p>
     </div>
 
     <ul class="user-info">
       <li
-        data-title="Hi, My name is"
-        class="name active"
-        @mouseover.stop="handleIconHover"></li>
-      <li
-        data-title="My email address is"
-        class="email"
-        @mouseover.stop="handleIconHover"></li>
-      <li
-        data-title="My birthday is"
-        class="birthday"
-        @mouseover.stop="handleIconHover"></li>
+        v-for="icon in iconNameList"
+        :key="icon"
+        :class="generateIconClass(icon)"
+        @mouseover.stop="selectedInfoName = icon"></li>
     </ul>
 
     <div class="col-3">
@@ -48,13 +41,7 @@ export default {
   props: {
     userData: {
       type: Object,
-      default: () => ({
-        gender: "female",
-        name: {first: "John", last: "Doe"},
-        email: "john.doe@example.com",
-        dob: {date: "1956-08-15T02:12:48.206Z", age: 64},
-        picture: {large: "https://randomuser.me/api/portraits/women/93.jpg"}
-      })
+      required: true
     },
     cardId: {
       type: Number | String ,
@@ -64,7 +51,12 @@ export default {
   data: function () {
     return {
       selectedInfoName: 'name',
-      userTitle: 'Hi, My name is'
+      userTitleDictionary: {
+        name: 'Hi, My name is',
+        email: 'My email address is',
+        birthday: 'My birthday is'
+      },
+      iconNameList: ['name', 'email', 'birthday']
     }
   },
 
@@ -75,38 +67,12 @@ export default {
   },
 
   methods: {
-    handleIconHover (e) {
-      const activeIcon = this.getParentCardNode(this.cardId).getElementsByClassName('active')
-      const userInfoName = e.target.classList[0]
-      const userTitle = e.target.getAttribute('data-title')
-
-      if (activeIcon.length) {
-        this.makeIconInactive(activeIcon[0])
-      }
-
-      this.makeIconActive(e.target)
-      this.setInfoName(userInfoName)
-      this.setUserTitle(userTitle)
+    getUserTitle (infoName) {
+      return this.userTitleDictionary[infoName]
     },
 
-    makeIconActive (target) {
-      target.classList.add('active')
-    },
-
-    makeIconInactive (target) {
-      target.classList.remove('active')
-    },
-
-    setInfoName (name) {
-      this.selectedInfoName = name
-    },
-
-    setUserTitle (title) {
-      this.userTitle = title
-    },
-
-    getTitleValue (propName) {
-      switch (propName) {
+    getTitleValue (infoName) {
+      switch (infoName) {
         case 'name':
           return `${this.userData.name.first} ${this.userData.name.last}`
         case 'email':
@@ -117,8 +83,19 @@ export default {
       return this.userData[this.selectedInfoName]
     },
 
-    getParentCardNode (cardId) {
-      return document.getElementById(`card-${cardId}`)
+    generateIconClass (iconName) {
+      return {
+        'active': this.isIconActive(iconName),
+        [`${iconName}`]: Boolean(iconName)
+      }
+    },
+
+    showModal(cardId) {
+      this.$bvModal.show(`userModal${cardId}`)
+    },
+
+    isIconActive (name) {
+      return this.selectedInfoName === name
     }
   }
 }

@@ -2,32 +2,18 @@
   <section class="container-fluid py-3">
 
       <div class="filters-row">
-        <label class="radio-item">
-          <input
-            v-model="filters.gender"
-            type="radio"
-            value="any"
-            @change.stop="applyFilters">
-          <span class="filter-btn">any</span>
-        </label>
-
-        <label class="radio-item">
-          <input
-            v-model="filters.gender"
-            type="radio"
-            value="male"
-            @change.stop="applyFilters">
-          <span class="filter-btn">male</span>
-        </label>
-
-        <label class="radio-item">
-          <input
-            v-model="filters.gender"
-            type="radio"
-            value="female"
-            @change.stop="applyFilters">
-          <span class="filter-btn">female</span>
-        </label>
+        <div
+          v-for="item in radioItems"
+          :key="item">
+          <label class="radio-item">
+            <input
+              v-model="filters.gender"
+              type="radio"
+              :value="item"
+              @change.stop="applyFilters">
+            <span class="filter-btn">{{ item }}</span>
+          </label>
+        </div>
       </div>
 
     <div class="row user-list">
@@ -51,7 +37,7 @@
             :max="20"
             type="number"
             id="count-inp"
-            @input.stop="handleUserCountInput">
+            @change.stop="handleUserCountInput">
 
             <b-popover
               :show.sync="isError"
@@ -89,9 +75,9 @@
 import { mapActions, mapGetters } from 'vuex'
 import { BIconChevronLeft, BIconChevronRight, BIconArrowRepeat } from 'bootstrap-vue'
 
-import UserCard from '~/components/UserCard.vue'
+import UserCard from '~/components/Users/UserCard.vue'
 
-import debounce from '../utils/debounce'
+import debounce from '~/utils/debounce'
 
 export default {
   name: 'UserList',
@@ -110,9 +96,10 @@ export default {
         page: 1,
         results: 10
       },
+      radioItems: ['any', 'male', 'female'],
       isError: false,
-      getUserListWithDebounce: debounce(this.getUserList),
-      loadMoreUsersWithDebounce: debounce(this.loadMoreUsers),
+      getUserListWrapped: debounce(this.getUserList),
+      loadMoreUsersWarapped: debounce(this.loadMoreUsers),
       errorMessage: 'Required'
     }
   },
@@ -129,43 +116,33 @@ export default {
 
   methods: {
     ...mapActions({
-      getUserList: 'users/GET_USER_LIST',
-      loadMoreUsers: 'users/LOAD_MORE_USERS'
+      getUserList: 'users/getUserList',
+      loadMoreUsers: 'users/loadMoreUsers'
     }),
 
-    applyFilters (e) {
-      const { value } = e.target
-
-      this.getUserList({
-        inc: 'gender,name,email,dob,picture',
-        ...this.pagination,
-        ...(value !== 'any' ? { ...this.filters } : {})
-      })
+    applyFilters () {
+      if (!this.isError) {
+        this.getUserList()
+      }
     },
 
-    async handleUserCountInput (e) {
+    handleUserCountInput (e) {
       const count = e.target.value
-      const { valid, msg } = await this.validateItemsCount(count)
 
-      if (valid) {
-        this.hideError()
-        this.getUserListWithDebounce({
-          inc: 'gender,name,email,dob,picture',
-          ...this.pagination,
-          ...(this.filters.gender !== 'any' ? { ...this.filters } : {})
-        })
-      } else {
-        this.displayError(msg)
+      this.validateItemsCount(count)
+
+      if (!this.isError) {
+        this.getUserListWithDebounce()
       }
     },
 
     validateItemsCount(count) {
       if (+count < 1) {
-        return { valid: false, msg: 'ERROR_REQUIRED' }
+        this.displayError('ERROR_REQUIRED')
       } else if (+count > 20) {
-        return { valid: false, msg: 'ERROR_GRETER_THEN_ALLOWED' }
+        this.displayError('ERROR_GRETER_THEN_ALLOWED')
       } else {
-        return { valid: true, msg: 'VALID'}
+        this.hideError()
       }
     },
 
@@ -192,11 +169,7 @@ export default {
       if (this.pagination.page >= 2 && !this.isError) {
         this.pagination.page = this.pagination.page - 1
 
-        this.getUserListWithDebounce({
-          inc: 'gender,name,email,dob,picture',
-          ...this.pagination,
-          ...(this.filters.gender !== 'any' ? { ...this.filters } : {})
-        })
+        this.getUserListWithDebounce()
       }
 
     },
@@ -205,42 +178,35 @@ export default {
       if (!this.isError) {
         this.pagination.page++
 
-        this.getUserListWithDebounce({
-          inc: 'gender,name,email,dob,picture',
-          ...this.pagination,
-          ...(this.filters.gender !== 'any' ? { ...this.filters } : {})
-        })
+        this.getUserListWithDebounce()
       }
     },
 
     loadMore () {
-      // const { valid } = this.validateItemsCount(this.pagination.results)
-      // const availableItemsToLoad = 20 - this.pagination.results
-
-      // if (valid && availableItemsToLoad) {
-      //   this.pagination.results = availableItemsToLoad > 5 ? this.pagination.results + 5 : 20
-
-      //   this.getUserListWithDebounce({
-      //     inc: 'gender,name,email,dob,picture',
-      //     ...this.pagination,
-      //     ...(this.filters.gender !== 'any' ? { ...this.filters } : {})
-      //   })
-      // }
       if (!this.isError) {
         this.pagination.page++
 
-        this.loadMoreUsersWithDebounce({
-          inc: 'gender,name,email,dob,picture',
-          ...this.pagination,
-          ...(this.filters.gender !== 'any' ? { ...this.filters } : {})
-        })
+        this.loadMoreUsersWithDebounce()
       }
+    },
+
+    getUserListWithDebounce () {
+      this.getUserListWrapped({
+        pagination: this.pagination,
+        filters: this.filters
+      })
+    },
+
+    loadMoreUsersWithDebounce () {
+      this.loadMoreUsersWarapped({
+        pagination: this.pagination,
+        filters: this.filters
+      })
     },
 
     async init() {
       await this.getUserList({
-        inc: 'gender,name,email,dob,picture',
-        ...this.pagination
+        pagination: this.pagination
       })
     }
   }
